@@ -5,7 +5,6 @@ CREATE TABLE `apns_device_history` (
   `clientid` varchar(64) NOT NULL,
   `appname` varchar(255) NOT NULL,
   `appversion` varchar(25) default NULL,
-  `deviceuid` char(40) NOT NULL,
   `devicetoken` char(64) NOT NULL,
   `devicename` varchar(255) NOT NULL,
   `devicemodel` varchar(100) NOT NULL,
@@ -29,7 +28,6 @@ CREATE TABLE `apns_device_history` (
   KEY `status` (`status`),
   KEY `appname` (`appname`),
   KEY `appversion` (`appversion`),
-  KEY `deviceuid` (`deviceuid`),
   KEY `archived` (`archived`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Store unique device history';
 
@@ -38,7 +36,6 @@ CREATE TABLE `apns_devices` (
   `clientid` varchar(64) NOT NULL,
   `appname` varchar(255) NOT NULL,
   `appversion` varchar(25) default NULL,
-  `deviceuid` char(40) NOT NULL,
   `devicetoken` char(64) NOT NULL,
   `devicename` varchar(255) NOT NULL,
   `devicemodel` varchar(100) NOT NULL,
@@ -51,7 +48,6 @@ CREATE TABLE `apns_devices` (
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`pid`),
-  UNIQUE KEY `appname` (`appname`,`deviceuid`),
   KEY `clientid` (`clientid`),
   KEY `devicetoken` (`devicetoken`),
   KEY `devicename` (`devicename`),
@@ -72,7 +68,6 @@ CREATE TRIGGER `Archive` BEFORE UPDATE ON `apns_devices` FOR EACH ROW INSERT INT
 	OLD.`clientid`,
 	OLD.`appname`,
 	OLD.`appversion`,
-	OLD.`deviceuid`,
 	OLD.`devicetoken`,
 	OLD.`devicename`,
 	OLD.`devicemodel`,

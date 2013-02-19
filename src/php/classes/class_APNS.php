@@ -172,7 +172,7 @@ class APNS {
  	 * </code>
 	 *
 	 * Your iPhone App Delegate.m file will point to a PHP file with this APNS Object.  The url will end up looking something like:
-	 * https://secure.yourwebsite.com/apns.php?task=register&appname=My%20App&appversion=1.0.1&deviceuid=e018c2e46efe185d6b1107aa942085a59bb865d9&devicetoken=43df9e97b09ef464a6cf7561f9f339cb1b6ba38d8dc946edd79f1596ac1b0f66&devicename=My%20Awesome%20iPhone&devicemodel=iPhone&deviceversion=3.1.2&pushbadge=enabled&pushalert=disabled&pushsound=enabled
+	 * https://secure.yourwebsite.com/apns.php?task=register&appname=My%20App&appversion=1.0.1&devicetoken=43df9e97b09ef464a6cf7561f9f339cb1b6ba38d8dc946edd79f1596ac1b0f66&devicename=My%20Awesome%20iPhone&devicemodel=iPhone&deviceversion=3.1.2&pushbadge=enabled&pushalert=disabled&pushsound=enabled
 	 *
 	 * @param object|DbConnectAPNS $db Database Object
 	 * @param array $args Optional arguments passed through $argv or $_GET
@@ -216,7 +216,6 @@ class APNS {
 					$this->_registerDevice(
 						$args['appname'],
 						$args['appversion'],
-						$args['deviceuid'],
 						$args['devicetoken'],
 						$args['devicename'],
 						$args['devicemodel'],
@@ -269,7 +268,6 @@ class APNS {
 	 *
 	 * @param string $appname Application Name
 	 * @param string $appversion Application Version
-	 * @param string $deviceuid 40 charater unique user id of Apple device
 	 * @param string $devicetoken 64 character unique device token tied to device id
 	 * @param string $devicename User selected device name
 	 * @param string $devicemodel Modle of device 'iPhone' or 'iPod'
@@ -280,11 +278,10 @@ class APNS {
  	 * @param string $clientid The clientid of the app for message grouping
 	 * @access private
 	 */
-	private function _registerDevice($appname, $appversion, $deviceuid, $devicetoken, $devicename, $devicemodel, $deviceversion, $pushbadge, $pushalert, $pushsound, $clientid = NULL){
+	private function _registerDevice($appname, $appversion, $devicetoken, $devicename, $devicemodel, $deviceversion, $pushbadge, $pushalert, $pushsound, $clientid = NULL){
 
 		if(strlen($appname)==0) $this->_triggerError('Application Name must not be blank.', E_USER_ERROR);
 		else if(strlen($appversion)==0) $this->_triggerError('Application Version must not be blank.', E_USER_ERROR);
-		else if(strlen($deviceuid)>40) $this->_triggerError('Device ID may not be more than 40 characters in length.', E_USER_ERROR);
 		else if(strlen($devicetoken)!=64) $this->_triggerError('Device Token must be 64 characters in length.', E_USER_ERROR);
 		else if(strlen($devicename)==0) $this->_triggerError('Device Name must not be blank.', E_USER_ERROR);
 		else if(strlen($devicemodel)==0) $this->_triggerError('Device Model must not be blank.', E_USER_ERROR);
@@ -295,7 +292,6 @@ class APNS {
 
 		$appname = $this->db->prepare($appname);
 		$appversion = $this->db->prepare($appversion);
-		$deviceuid = $this->db->prepare($deviceuid);
 		$devicetoken = $this->db->prepare($devicetoken);
 		$devicename = $this->db->prepare($devicename);
 		$devicemodel = $this->db->prepare($devicemodel);
@@ -313,7 +309,6 @@ class APNS {
 					'{$clientid}',
 					'{$appname}',
 					'{$appversion}',
-					'{$deviceuid}',
 					'{$devicetoken}',
 					'{$devicename}',
 					'{$devicemodel}',
@@ -524,7 +519,7 @@ class APNS {
 				// "If you send a notification and APNs finds the notification malformed or otherwise unintelligible, it
 				// returns an error-response packet prior to disconnecting. (If there is no error, APNs doesn't return
 				// anything.)"
-				// 
+				//
 				// This complicates the read if it blocks.
 				// The timeout (if using a stream_select) is dependent on network latency.
 				// default socket timeout is 60 seconds
@@ -769,16 +764,16 @@ class APNS {
 	}
 
 	/**
-	 * Start a New Message. Like newMessage, but takes the deviceUId instead of fk_device.
+	 * Start a New Message. Like newMessage, but takes the deviceToken instead of fk_device.
 	 * Actually fetches the pid from the db and then calls the plain newMessage.
 	 *
-	 * @param mixed $deviceUId The DeviceUId you want to send the message to.
+	 * @param mixed $deviceToken The DeviceToken you want to send the message to.
 	 * @param string $delivery Possible future date to send the message.
 	 * @access public
 	 */
-	public function newMessageByDeviceUId($deviceUId=NULL, $delivery=NULL, $clientId=NULL) {
-		
-		$sql = "SELECT `pid` FROM `apns_devices` WHERE `deviceuid`='$deviceUId'";
+	public function newMessageByDeviceToken($deviceToken=NULL, $delivery=NULL, $clientId=NULL) {
+
+		$sql = "SELECT `pid` FROM `apns_devices` WHERE `devicetoken`='$deviceToken'";
 
 		$result = $this->db->query($sql);
 		$row = $result->fetch_array(MYSQLI_ASSOC);
