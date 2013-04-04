@@ -329,8 +329,8 @@ class APNS {
 				)
 				ON DUPLICATE KEY UPDATE
 				# If not using real UUID (iOS5+), uid may change on reinstall.
-				`deviceuid`='{$deviceuid}',
 				`devicetoken`='{$devicetoken}',
+				appversion='{$appversion}',
 				`devicename`='{$devicename}',
 				`devicemodel`='{$devicemodel}',
 				`deviceversion`='{$deviceversion}',
