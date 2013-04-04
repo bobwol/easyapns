@@ -28,6 +28,13 @@
  * @link http://code.google.com/p/easyapns/
  */
 
+
+require_once(dirname(__FILE__) . '/config.php');
+if (! $config)
+{
+	die('Missing config.php');
+}
+
 /**
  * Begin Document
  */
@@ -40,12 +47,12 @@ if(!function_exists("__autoload")){
 }
 
 // CREATE DATABASE OBJECT ( MAKE SURE TO CHANGE LOGIN INFO )
-$db = new DbConnect('localhost', 'apnsuser', 'apnspassword', 'apnsdb');
+$db = new DbConnect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
 $db->show_errors();
 
 // FETCH $_GET OR CRON ARGUMENTS TO AUTOMATE TASKS
 $args = (!empty($_GET)) ? $_GET:array('task'=>$argv[1]);
 
 // CREATE APNS OBJECT, WITH DATABASE OBJECT AND ARGUMENTS
-$apns = new APNS($db, $args);
+$apns = new APNS($db, $args, $config['production_certificate'], $config['sandbox_certificate'], $config['log_file']);
 ?>

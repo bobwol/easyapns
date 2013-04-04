@@ -1,0 +1,13 @@
+<?php
+
+$config = array
+(
+	'db_host'                => 'localhost',
+	'db_name'                => 'apnsdb',
+	'db_user'                => 'apnsuser',
+	'db_pass'                => 'apnspassword',
+	'production_certificate' => '/usr/local/apns/apns.pem',
+	'sandbox_certificate'    => '/usr/local/apns/apns-dev.pem',
+	'log_file'               => '/usr/local/apns/apns.log',
+);
+
