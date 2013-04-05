@@ -1,5 +1,6 @@
 CREATE TABLE `apns_devices` (
   `pid` int(9) unsigned NOT NULL auto_increment,
+  facebook_uid bigint NULL,
   `clientid` varchar(64) NOT NULL,
   `appname` varchar(255) NOT NULL,
   `appversion` varchar(25) default NULL,
@@ -15,7 +16,7 @@ CREATE TABLE `apns_devices` (
   `created` datetime NOT NULL,
   `modified` timestamp NOT NULL default '0000-00-00 00:00:00' on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`pid`),
-  UNIQUE KEY (devicetoken),
+  UNIQUE KEY (facebook_uid),
   KEY `clientid` (`clientid`),
   KEY `devicename` (`devicename`),
   KEY `devicemodel` (`devicemodel`),

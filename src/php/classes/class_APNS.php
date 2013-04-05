@@ -37,8 +37,9 @@ class APNS {
 	* @var string
 	* @access private
 	*/	       
-	private $DEVELOPMENT = 'production'; // or 'sandbox'
-	
+	//private $DEVELOPMENT = 'production'; // or 'sandbox'
+	private $DEVELOPMENT = 'sandbox';	
+
 	/**
 	* Connection to MySQL
 	*
@@ -188,7 +189,6 @@ class APNS {
 	 * @access 	public
 	 */
 	function __construct($db, $args=NULL, $certificate=NULL, $sandboxCertificate=NULL, $logPath=NULL) {
-
 		if(!empty($certificate) && file_exists($certificate))
 		{
 			$this->certificate = $certificate;
@@ -296,6 +296,24 @@ class APNS {
 		else if($pushalert!='disabled' && $pushalert!='enabled') $this->_triggerError('Push Alert must be either Enabled or Disabled.', E_USER_ERROR);
 		else if($pushsound!='disabled' && $pushsound!='enabled') $this->_triggerError('Push Sount must be either Enabled or Disabled.', E_USER_ERROR);
 
+		// TODO: Add memcache
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, 'https://graph.facebook.com/me?access_token=' . $_GET['accessToken']);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+       		$result = curl_exec($curl);
+		$facebook_result  = (array)json_decode($result);
+
+		if ($facebook_result['id'])
+		{
+			$facebook_uid = $this->db->prepare($facebook_result['id']);
+			$facebook_query = "'{$facebook_uid}',";
+		}
+		else
+		{
+			$facebook_query = "NULL,";
+		}
+
 		$appname = $this->db->prepare($appname);
 		$appversion = $this->db->prepare($appversion);
 		$devicetoken = $this->db->prepare($devicetoken);
@@ -312,6 +330,7 @@ class APNS {
 		$sql = "INSERT INTO `apns_devices`
 				VALUES (
 					NULL,
+					$facebook_query
 					'{$clientid}',
 					'{$appname}',
 					'{$appversion}',
@@ -330,6 +349,7 @@ class APNS {
 				ON DUPLICATE KEY UPDATE
 				# If not using real UUID (iOS5+), uid may change on reinstall.
 				`devicetoken`='{$devicetoken}',
+				facebook_uid='{$facebook_uid}',
 				appversion='{$appversion}',
 				`devicename`='{$devicename}',
 				`devicemodel`='{$devicemodel}',
@@ -455,6 +475,7 @@ class APNS {
 		$ctx = stream_context_create();
 		stream_context_set_option($ctx, 'ssl', 'local_cert', $this->apnsData[$development]['certificate']);
 		$this->sslStreams[$development] = stream_socket_client($this->apnsData[$development]['ssl'], $error, $errorString, 100, (STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT), $ctx);
+
 		if(!$this->sslStreams[$development]){
 			$this->_triggerError("Failed to connect to APNS: {$error} {$errorString}.");
 			unset($this->sslStreams[$development]);

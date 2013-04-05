@@ -2,6 +2,7 @@ SET FOREIGN_KEY_CHECKS=0;
 
 CREATE TABLE `apns_device_history` (
   `pid` int(9) unsigned NOT NULL auto_increment,
+  facebook_uid bigint NULL,
   `clientid` varchar(64) NOT NULL,
   `appname` varchar(255) NOT NULL,
   `appversion` varchar(25) default NULL,
@@ -16,7 +17,7 @@ CREATE TABLE `apns_device_history` (
   `status` enum('active','uninstalled') NOT NULL default 'active',
   `archived` datetime NOT NULL,
   PRIMARY KEY  (`pid`),
-  UNIQUE KEY (devicetoken),
+  UNIQUE KEY (facebook_uid),
   KEY `clientid` (`clientid`),
   KEY `devicename` (`devicename`),
   KEY `devicemodel` (`devicemodel`),
